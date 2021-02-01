@@ -282,13 +282,6 @@ Feel free to drop me a message on [Twitter](https://twitter.com/kanns103) or by 
 
 
 
-## Want to support my work?
-
-Donating is not mandatory but it would be appreciated! Here is my [paypal](https://www.paypal.me/jackhughes10)
-
-
-
-
 
 
 
