@@ -79,7 +79,7 @@ So now that we covered the boring parts, let’s take a look into the juicier se
 
 So, now you have everything set up for creating a tweak, let’s get into it. We are going to create a new project without a preference bundle. Open up a fresh terminal window and type this ```$THEOS/bin/nic.pl``` and this should bring up some options (If you have done the steps before correctly). This is theos in action. Find the option that has iPhone/Tweak next to it, type the number next to it and press enter. 
 
-- Next, the project name can be anything, obviously your tweak name. For the tweak we will make, we will be hiding the dock, so let’s call it HideDock14. Once you have typed that, press enter, and you will be presented with another option. 
+- Next, the project name can be anything, obviously your tweak name. For the tweak we will make, we will be hiding the dock background, so let’s call it HideDock14. Once you have typed that, press enter, and you will be presented with another option. 
 
 - This time, it’s the package name. This is the bundle id that I was talking about earlier. So, type your unique bundle id. Note that this all HAS to be lower-case.
 
@@ -126,8 +126,6 @@ SafariXPlus_EXTRA_FRAMEWORKS += Cephei
 SafariXPlus_PRIVATE_FRAMEWORKS = CoreTelephony
 ```
 
-- Then delete this line in your makefile ```INSTALL_TARGET_PROCESSES = SpringBoard```
-
 - Next, you need to install OpenSSH on your iPhone located in your package manager (cydia, zebra etc). This just makes it easier for you to test the tweak and install it on your device. 
 
 - Once that is done, go back into your makefile and put this in it nearer the top and replace ```yourip``` with your IP address of the phone you just installed OpenSSH on and you want to test your tweak on.
@@ -151,89 +149,34 @@ after-install::
  
 - Now that we have the makefile and everything else done, lets create the actual code. Next, open up your tweak.x and delete absolutely everything within it, this is just blank text. Go ahead and take a quick read if you like. If you are using sublime text like me, your code editor won’t recognise it as objective c so it will recognise it as plain text, but this won’t affect anything. Just go down to the bottom right, select plain text and select objective C or C from the list, now it will be coloured.
 
-- So, the piece of code that we are about to write will only be a few lines. Let me break it down bit by bit. To start off with, you need a ```%hook``` and an ```%end```, always. A hook and end are important. A hook is the unique identifier on the method you want to change, and end is how you stop the code. To start off with, we are going to hide the dock on non-notched devices. So, type this,
+- So, the piece of code that we are about to write will only be a few lines. Let me break it down bit by bit. To start off with, you need a ```%hook``` and an ```%end```, always. A hook and end are important. A hook is the used so you can use the class you have found, and end is how you stop the code. So, type this,
 
 ```
 %hook SBDockView
 ```
 
-- We are doing this because we need to hook into the non-notched dock and hide it. We can find out what we need to hook with a tweak called Flexall. Flexall allows you to hold on the status bar then tap on what you want to change, it will then give you the view. After that, we can put that view into [Limneos header website](https://developer.limneos.net/?ios=13.1.3) and It will give you all the methods that come with it. Because we are hiding the dock, we need to use ```layoutSubviews```. So, after ```layoutSubviews```, it should look like this:
+- We are doing this because we need to hook into the non-notched dock and hide it. We can find out what we need to hook with a tweak called Flexall. Flexall allows you to hold on the status bar then tap on what you want to change, it will then give you the view. After that, we can put that view into [Limneos header website](https://developer.limneos.net/?ios=13.1.3) and it will give you all the methods that come with it. Now, because you don't want this to be repeated, we will not use layoutSubviews, its generally seen as a last resort. Instead, we are going to use ```-(void)setBackgroundAlpha:(double)arg1```. And we want 0 because that's transparent, and because we can't return ```void``` we need to use ```arg1```. It should look like this:
 
 ```
 %hook SBDockView
--(void)layoutSubviews
+-(void)setBackgroundAlpha:(double)arg1
 ```
 
 - If you’re a beginner, don’t worry, this is all very confusing and will continue to be until you get a hold of this a bit better, just try not to get overwhelmed.
 
-- After that, we need to hide it. So we need to use ```self.hidden``` and set the value to ```YES``` and finish it with ```%end```. And the {} that you see is where you put the main piece of code. Without that, it won’t work and when you go to compile, it will spit out an error. The reason why we are setting it to YES is because we want to hide it. We can use ```self.hidden``` to do so. Take a moment to try to understand this as it will benifit you in the future. The final main code should look like this.
+- After that, we need to use ````%orig```` to set it to 0. The final main code should look like this:
 
 ```
 %hook SBDockView
--(void)layoutSubviews {
-self.hidden = YES;
+-(void)setBackgroundAlpha:(double)arg1 {
+%orig(0);
 }
 %end
 ```
 
 
 
-
-
-- Congratulations, you have just hidden the dock on non-notched devices. But now, we need to hide it on notched devices. Just place this a couple lines underneath the other code. To do this, we just need to replace ```SBDockView``` with ```SBFloatingDockPlatterView```. It will look like this:
-
-
-```
-%hook SBFloatingDockPlatterView
--(void)layoutSubviews {
-self.hidden = YES;
-}
-%end
-```
-
-
-- So overall so far, the code should look like so:
-
-```
-%hook SBDockView
--(void)layoutSubviews {
-self.hidden = YES;
-}
-%end
-
-
-%hook SBFloatingDockPlatterView
--(void)layoutSubviews {
-self.hidden = YES;
-}
-%end
-```
-
-
-
-## Section 7 defining:
-
-- So now we have our code. Simple enough? I hope so. Now comes the defining. Personally, I don’t like this as you have to define a lot with certain methods, especially when hiding objects. If we compile without the following code, it will fail. So, type both of these in your Tweak.h, not your Tweak.x:
-
-
-
-- This one is for non-notched: 
-
-```
-@interface SBDockView
-@property (nonatomic, assign, readwrite, getter=isHidden) BOOL hidden;
-@end
-```
-
-
-
-- This one is for notched:
-
-```
-@interface SBFloatingDockPlatterView
-@property (nonatomic, assign, readwrite, getter=isHidden) BOOL hidden;
-@end
-```
+## Congratulations you have just hidden the dock background
 
 
 
@@ -346,26 +289,18 @@ Alright so that is all done, lets move on.
 
 ## Tweak.x
 
-If you followed the code above to hide the dock, then you can just add to it. We need to create a key so we can link them to the Root.plist. To do this, we need to go inbetween the brackets after ```-(void)layoutSubviews```. First, we need to call ```%orig```. ```%orig``` is a function that calls the original value. Without it, there is a good chance your switch will mess up. After that, we need to add in the switch, which will start with 'if', then in brackets would be your unique value, this can be anything. You want to do this to both bits of code in the tweak.x and the final code with the key in it will look like this:
+If you followed the code above to hide the dock, then you can just add to it. We need to create a key so we can link them to the Root.plist. To do this, we need to go inbetween the brackets after ```-(void)setBackgroundAlpha:(double)arg1```. First, we need to call ```%orig```. ```%orig``` is a function that calls the original value. Without it, there is a good chance your switch will mess up. After that, we need to add in the switch, which will start with 'if', then in brackets would be your unique value, this can be anything. The final code with the key in it will look like this:
 
 ```
 %hook SBDockView
--(void)layoutSubviews {
+-(void)setBackgroundAlpha:(double)arg1 {
 %orig;
 if(yourvalue)
-self.hidden = YES;
+%orig(0);
+}
 %end
 ```
-and
 
-```
-%hook SBFloatingDockPlatterView
--(void)layoutSubviews {
-%orig;
-if(yourvalue)
-self.hidden = YES;
-%end
-```
 
 - Now we have done that, we need to put a little code at the bottom. You need to replace ```TweakName```, ```name``` and ```yourvalue``` with the correct information. with your tweak name. Make sure you keep it exactly the same as everything else, apart from the control file where the identifier has to be lowercase. The code is:
 
