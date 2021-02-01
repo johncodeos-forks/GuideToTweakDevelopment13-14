@@ -119,12 +119,7 @@ So, now you have everything set up for creating a tweak, let’s get into it. We
 ARCHS = arm64 arm64e
 ```
 
-- Next, in your makefile again, put these underneath ```tweakname_FILES = Tweak.x``` and ```tweakname_CFLAGS = -fobjc-arc```:
 
-```
-SafariXPlus_EXTRA_FRAMEWORKS += Cephei
-SafariXPlus_PRIVATE_FRAMEWORKS = CoreTelephony
-```
 
 - Next, you need to install OpenSSH on your iPhone located in your package manager (cydia, zebra etc). This just makes it easier for you to test the tweak and install it on your device. 
 
