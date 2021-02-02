@@ -150,7 +150,7 @@ after-install::
 %hook SBDockView
 ```
 
-- We are doing this because we need to hook into the non-notched dock and hide it. We can find out what we need to hook with a tweak called Flexall. Flexall allows you to hold on the status bar then tap on what you want to change, it will then give you the view. After that, we can put that view into [Limneos header website](https://developer.limneos.net/?ios=13.1.3) and it will give you all the methods that come with it. Now, because you don't want this to be repeated, we will not use layoutSubviews, its generally seen as a last resort. Instead, we are going to use ```-(void)setBackgroundAlpha:(double)arg1```. And we want 0 because that's transparent, and because we can't return ```void``` we need to use ```arg1```. It should look like this:
+- We are doing this because we need to hook into the non-notched dock and hide it. We can find out what we need to hook with a tweak called Flexall. Flexall allows you to hold on the status bar then tap on what you want to change, it will then give you the view. After that, we can put that view into [Limneos header website](https://developer.limneos.net/?ios=13.1.3) and it will give you all the methods that come with it. Now, because you don't want this to be repeated, we will not use layoutSubviews, its generally seen as a last resort. Instead, we are going to use ```-(void)setBackgroundAlpha:(double)arg1```. We are using this because it means that bit will change the alpha of the background. And we want 0 because that's transparent, and because we can't return ```void``` we need to use ```arg1```. It should look like this:
 
 ```
 %hook SBDockView
